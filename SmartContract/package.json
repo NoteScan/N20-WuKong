@@ -1,0 +1,52 @@
+{
+  "name": "note-contract",
+  "version": "0.1.0",
+  "description": "A template sCrypt smart contract for NOTE Protocol.",
+  "author": "",
+  "scripts": {
+    "prebuild": "npm run clean",
+    "build": "tsc",
+    "clean": "npx rimraf scrypt.index.json && rimraf dist && rimraf artifacts",
+    "compile": "npx scrypt-cli@latest compile",
+    "pretest": "npm run build && npm run compile",
+    "test": "cross-env npx mocha",
+    "lint": "eslint . --ext .js,.ts --fix && prettier --write --ignore-unknown \"**/*\""
+  },
+  "lint-staged": {
+    "**/*": [
+      "prettier --write --ignore-unknown"
+    ],
+    "**/*.{ts,js}": [
+      "eslint --cache --fix"
+    ]
+  },
+  "dependencies": {
+    "bitcore-lib": "^10.1.0",
+    "dotenv": "^16.4.5",
+    "rabinsig": "^4.2.1",
+    "scrypt-ts": "^1.3.31",
+    "scrypt-ts-lib": "^0.1.28",
+    "scrypt-verify": "github:NoteProtocol/scrypt-verify",
+    "scryptlib": "github:ChainBow/scryptlib"
+  },
+  "devDependencies": {
+    "@types/chai": "^4.3.16",
+    "@types/chai-as-promised": "^7.1.8",
+    "@types/mocha": "^10.0.7",
+    "@types/node": "^20.14.10",
+    "@typescript-eslint/eslint-plugin": "^6.21.0",
+    "@typescript-eslint/parser": "^6.21.0",
+    "chai": "^4.4.1",
+    "chai-as-promised": "^7.1.2",
+    "cross-env": "^7.0.3",
+    "eslint": "^8.57.0",
+    "eslint-config-prettier": "^8.10.0",
+    "minimist": "^1.2.8",
+    "mocha": "^10.6.0",
+    "prettier": "^2.8.8",
+    "rimraf": "^3.0.2",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.5.3"
+  },
+  "license": "MIT"
+}
