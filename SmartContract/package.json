@@ -1,7 +1,7 @@
 {
-  "name": "note-contract",
+  "name": "wukong-contract",
   "version": "0.1.0",
-  "description": "A template sCrypt smart contract for NOTE Protocol.",
+  "description": "A demo sCrypt smart contract for NOTE Protocol.",
   "author": "",
   "scripts": {
     "prebuild": "npm run clean",
@@ -21,6 +21,7 @@
     ]
   },
   "dependencies": {
+    "bitcoinjs-lib": "^6.1.6",
     "bitcore-lib": "^10.1.0",
     "dotenv": "^16.4.5",
     "rabinsig": "^4.2.1",

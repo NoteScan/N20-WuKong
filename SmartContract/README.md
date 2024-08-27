@@ -1,30 +1,32 @@
-# NOTE Contract Template
+# WuKong Smart Contract
 
-This is a template project for creating and test your smart contract using sCrypt for NOTE Protocol.
+This smart contract, built using sCrypt, is designed for the [NOTE Protocol](https://noteprotocol.org).
+
+The contract features an adaptive mining difficulty that adjusts based on mining progress, with a maximum of 9 difficulty levels. The total token supply is divided into 9 parts, with the mining difficulty quadrupling after each part is mined.
 
 ## Getting Started
 
-Follow these steps to set up and deploy your first smart contract.
+Follow these steps to set up and test the smart contract.
 
 ### Prerequisites
 
 - [Node.js](https://nodejs.org/)
 - [sCrypt Bitcoin Script Language](https://docs.scrypt.io/)
-- [NoteProtocol](https://noteprotocol.org/)
+- [NOTE Protocol](https://noteprotocol.org/)
 
 ### Installation
 
 1. Clone the repository:
 
 ```bash
-git clone https://github.com/NoteProtocol/note-contract.git
-cd note-contract
+git clone https://github.com/NoteScan/N20-WuKong
+cd N20-WuKong/SmartContract
 ```
 
 1. Install dependencies:
 
 ```bash
-npm install
+pnpm i
 ```
 
 ### Usage
@@ -32,13 +34,13 @@ npm install
 To compile the contract:
 
 ```bash
-npm run compile
+pnpm compile
 ```
 
 To test the contract:
 
 ```bash
-npm run test
+pnpm test
 ```
 
 ## License

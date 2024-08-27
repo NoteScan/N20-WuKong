@@ -16,7 +16,7 @@ const deployData = {
     op: 'deploy',
     tick,
     max: 81n * 10000n * 10000n * 10n ** 8n,
-    lim: 1000n * 10n ** 8n,
+    lim: 10000n * 10n ** 8n,
     dec: 8,
     sch: '50b13619d4d936d7c5c7fb7dfbe752e33b85b33774e9e2b3779f16791fb1c749',
 }
@@ -25,7 +25,7 @@ const mintData = {
     p: 'n20',
     op: 'mint',
     tick,
-    amt: 1000n * 10n ** 8n,
+    amt: 10000n * 10n ** 8n,
     nonce: 0n,
 }
 
@@ -67,7 +67,6 @@ describe('Test SmartContract `N20_WuKong`', () => {
             transfer: { tick: stringToBytes(deployData.tick) },
         }
         console.log('🚀 ~ it ~ dataMap:', dataMap)
-
         const result = offlineVerify(wuKongJson, dataMap, 'mint')
         console.log('🚀 ~ it ~ result:', result)
         expect(result.success).is.true
@@ -83,7 +82,7 @@ describe('Test SmartContract `N20_WuKong`', () => {
 
         const call = async () => {
             {
-                const callRes = await instance.methods.mint(toByteString(tick, true), mintData.amt, 180000000000000000n, 203723n, [inputData])
+                const callRes = await instance.methods.mint(toByteString(tick, true), mintData.amt, 180000000000000001n, 274374n, [inputData])
             }
         }
         await expect(call()).not.to.be.rejected
