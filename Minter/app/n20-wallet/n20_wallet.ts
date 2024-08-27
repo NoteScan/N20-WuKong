@@ -51,7 +51,7 @@ import {
 const mintData: IMintN20Data = {
   p: 'n20',
   op: 'mint',
-  tick: 'WUKONG#3',
+  tick: 'WUKONG',
   amt: 900000000000n,
   nonce: 0n,
 }
