@@ -118,19 +118,19 @@ export function stringToBytes(str: string) {
 
 export function num2bin(num: bigint, bytes: number): string {
   if (num < 0n) {
-    throw new Error("Input must be a non-negative bigint");
+    throw new Error('Input must be a non-negative bigint')
   }
-  const hex = num.toString(16).padStart(bytes * 2, '0');
+  const hex = num.toString(16).padStart(bytes * 2, '0')
 
   if (hex.length > bytes * 2) {
-    throw new Error(`Number too large to fit in ${bytes} bytes`);
+    throw new Error(`Number too large to fit in ${bytes} bytes`)
   }
 
   // Reverse the byte order
-  const byteArray = hex.match(/.{1,2}/g)?.reverse() || [];
-  return byteArray.join('');
+  const byteArray = hex.match(/.{1,2}/g)?.reverse() || []
+  return byteArray.join('')
 }
 
 export function hash256(hexstr, encoding) {
-  return bitcoin.crypto.hash256(Buffer.from(hexstr, encoding || 'hex')).toString('hex');
+  return bitcoin.crypto.hash256(Buffer.from(hexstr, encoding || 'hex')).toString('hex')
 }

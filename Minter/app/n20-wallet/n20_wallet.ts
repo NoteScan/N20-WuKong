@@ -3,7 +3,14 @@ import { networks } from 'bitcoinjs-lib'
 import BtcWalletConnect from 'n20-connect'
 import { Mempool } from './mempool'
 import { NoteOrg } from './notescanio'
-import { hash256, num2bin, splitBufferIntoSegments, toXOnly, stringToBytes, sleep } from './n20_utils'
+import {
+  hash256,
+  num2bin,
+  splitBufferIntoSegments,
+  toXOnly,
+  stringToBytes,
+  sleep,
+} from './n20_utils'
 
 import type {
   IBroadcastResult,
@@ -42,12 +49,12 @@ import {
 } from './btc-note'
 
 const mintData: IMintN20Data = {
-    p: "n20",
-    op: "mint",
-    tick: "WUKONG#3",
-    amt: 900000000000n,
-    nonce: 0n,
-};
+  p: 'n20',
+  op: 'mint',
+  tick: 'WUKONG#3',
+  amt: 900000000000n,
+  nonce: 0n,
+}
 
 class N20Wallet {
   config: ICoinConfig
@@ -387,7 +394,7 @@ class N20Wallet {
     }
 
     const payload = this.buildN20Payload(transferData)
-    const feerate =  (await this.getFeePerKb()).avgFee
+    const feerate = (await this.getFeePerKb()).avgFee
     const tx = await this.buildN20Transaction(payload, toAddresses, tokenUtxos, payUtxos, feerate)
 
     const result = await this.broadcastTransaction(tx) // {txId:'111111', success: true}; //await this.broadcastTransaction(tx);
@@ -459,44 +466,40 @@ class N20Wallet {
     feeRate?: number
   ) {
     if (undefined === noteUtxo) {
-      const commitAddress = this.currentAccount.tokenAddress!;
-      let noteUtxos = await this.urchain.utxos([commitAddress.scriptHash]);
+      const commitAddress = this.currentAccount.tokenAddress!
+      let noteUtxos = await this.urchain.utxos([commitAddress.scriptHash])
       if (noteUtxos.length === 0) {
-        const result = await this.send([
-          {address: commitAddress.address!, amount: MIN_SATOSHIS},
-        ]);
+        const result = await this.send([{ address: commitAddress.address!, amount: MIN_SATOSHIS }])
         if (result.success) {
           for (let i = 0; i < 10; i++) {
-            noteUtxos = await this.urchain.utxos([commitAddress.scriptHash]);
+            noteUtxos = await this.urchain.utxos([commitAddress.scriptHash])
             if (noteUtxos.length > 0) {
-              break;
+              break
             } else if (i === 9) {
-              throw new Error("can not get commit note utxo");
+              throw new Error('can not get commit note utxo')
             }
-            await sleep(1000);
+            await sleep(1000)
           }
         } else {
-          throw new Error(result.error);
+          throw new Error(result.error)
         }
       }
-      noteUtxo = noteUtxos[0]!;
-      noteUtxo.type = "P2TR-NOTE";
+      noteUtxo = noteUtxos[0]!
+      noteUtxo.type = 'P2TR-NOTE'
     }
     if (payUtxos === undefined) {
-      payUtxos = await this.fetchAllAccountUtxos();
-      payUtxos = payUtxos?.filter(
-        (utxo) => utxo.scriptHash !== noteUtxo!.scriptHash
-      );
+      payUtxos = await this.fetchAllAccountUtxos()
+      payUtxos = payUtxos?.filter((utxo) => utxo.scriptHash !== noteUtxo!.scriptHash)
     }
     if (undefined === feeRate) {
       feeRate = (await this.getFeePerKb()).avgFee
     }
-    return  {
-        payload: payload,
-        toAddress: toAddress,
-        noteUtxo: noteUtxo,
-        payUtxos: payUtxos,
-        feeRate: feeRate,
+    return {
+      payload: payload,
+      toAddress: toAddress,
+      noteUtxo: noteUtxo,
+      payUtxos: payUtxos,
+      feeRate: feeRate,
     }
   }
 
@@ -509,74 +512,116 @@ class N20Wallet {
   ) {
     const result = await this.buildN20Transaction(
       payload,
-      [{address: toAddress, amount: MIN_SATOSHIS}],
+      [{ address: toAddress, amount: MIN_SATOSHIS }],
       [noteUtxo],
       payUtxos,
       feeRate
-    );
+    )
 
     return {
       ...result,
       noteUtxo: result.noteUtxos ? result.noteUtxos[0] : undefined,
-    };
+    }
   }
 
-  async mintWuKong(tick: string, amount: bigint, difficulty: bigint, log_item: HTMLDivElement, result_item: HTMLDivElement, t: any) {
-    let noteNote, payNotes, feeRate;
-    let result;
+  async mintWuKong(
+    tick: string,
+    amount: bigint,
+    difficulty: bigint,
+    log_item: HTMLDivElement,
+    result_item: HTMLDivElement,
+    t: any
+  ) {
+    let noteNote, payNotes, feeRate
+    let result
 
     mintData.amt = amount
     mintData.tick = tick
-    
+
     let payload = this.buildN20Payload(mintData)
     //Mint token to the token address
     const toAddress = this.currentAccount.tokenAddress!.address!
-    
+
     log_item.innerHTML = t('sign1')
-    const pre_trans = await this.prepareN20PayloadTransaction(payload, toAddress, noteNote, payNotes, feeRate)
+    const pre_trans = await this.prepareN20PayloadTransaction(
+      payload,
+      toAddress,
+      noteNote,
+      payNotes,
+      feeRate
+    )
     log_item.innerHTML = t('minting')
 
     await sleep(100)
-    
+
     let nonce = 0n
     while (nonce < MAX_LOCKTIME) {
-        const data = hash256(pre_trans.noteUtxo.txId + num2bin(BigInt(pre_trans.noteUtxo.outputIndex), 4) + num2bin(nonce, 8), 'hex')
-        const workproof = hash256(data, 'hex')
-        if (nonce % (5000n * (difficulty + 1n)) === 0n) {
-            result_item.innerHTML = workproof
-            await sleep(1)
-        }
-        if (difficulty === 0n && workproof.startsWith('0000') || 
-            difficulty === 2n && workproof.startsWith('00000') || 
-            difficulty === 4n && workproof.startsWith('000000') || 
-            difficulty === 6n && workproof.startsWith('0000000') || 
-            difficulty === 8n && workproof.startsWith('00000000')) {
-            break
-        } else if (difficulty === 1n && workproof.startsWith('0000') && parseInt(workproof.slice(4, 6), 16) < 64) {
-            break
-        } else if (difficulty === 3n && workproof.startsWith('0000') && parseInt(workproof.slice(4, 6), 16) < 4) {
-            break
-        } else if (difficulty === 5n && workproof.startsWith('000000') && parseInt(workproof.slice(6, 8), 16) < 64) {
-            break
-        } else if (difficulty === 7n && workproof.startsWith('000000') && parseInt(workproof.slice(6, 8), 16) < 4) {
-            break
-        }
-        nonce += 1n
+      const data = hash256(
+        pre_trans.noteUtxo.txId +
+          num2bin(BigInt(pre_trans.noteUtxo.outputIndex), 4) +
+          num2bin(nonce, 8),
+        'hex'
+      )
+      const workproof = hash256(data, 'hex')
+      if (nonce % (5000n * (difficulty + 1n)) === 0n) {
+        result_item.innerHTML = workproof
+        await sleep(1)
+      }
+      if (
+        (difficulty === 0n && workproof.startsWith('0000')) ||
+        (difficulty === 2n && workproof.startsWith('00000')) ||
+        (difficulty === 4n && workproof.startsWith('000000')) ||
+        (difficulty === 6n && workproof.startsWith('0000000')) ||
+        (difficulty === 8n && workproof.startsWith('00000000'))
+      ) {
+        break
+      } else if (
+        difficulty === 1n &&
+        workproof.startsWith('0000') &&
+        parseInt(workproof.slice(4, 6), 16) < 64
+      ) {
+        break
+      } else if (
+        difficulty === 3n &&
+        workproof.startsWith('0000') &&
+        parseInt(workproof.slice(4, 6), 16) < 4
+      ) {
+        break
+      } else if (
+        difficulty === 5n &&
+        workproof.startsWith('000000') &&
+        parseInt(workproof.slice(6, 8), 16) < 64
+      ) {
+        break
+      } else if (
+        difficulty === 7n &&
+        workproof.startsWith('000000') &&
+        parseInt(workproof.slice(6, 8), 16) < 4
+      ) {
+        break
+      }
+      nonce += 1n
     }
 
-    mintData.nonce = nonce;
+    mintData.nonce = nonce
     payload = this.buildN20Payload(mintData)
     log_item.innerHTML = t('sign2')
-    const tx = await this.buildN20PayloadTransaction( payload, pre_trans.noteUtxo, pre_trans.payUtxos, pre_trans.toAddress!, pre_trans.feeRate);
+    const tx = await this.buildN20PayloadTransaction(
+      payload,
+      pre_trans.noteUtxo,
+      pre_trans.payUtxos,
+      pre_trans.toAddress!,
+      pre_trans.feeRate
+    )
 
     try {
-        result = await this.broadcastTransaction(tx);
-        return result;
+      result = await this.broadcastTransaction(tx)
+      return result
     } catch (error) {
-        result = await this.broadcastTransaction(tx);
-        return result;
+      result = await this.broadcastTransaction(tx)
+      return result
     }
-  }  
+  }
 
   async getFeePerKb() {
     let hostname =

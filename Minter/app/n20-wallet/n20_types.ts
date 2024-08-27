@@ -119,7 +119,7 @@ export interface ICoinConfig {
   indexnote: {
     host: string
     apiKey: string
-  }  
+  }
 }
 
 export interface IBroadcastResult {
@@ -181,10 +181,9 @@ export type IContract = {
 }
 
 export interface IMintN20Data {
-    p: "n20";
-    op: "mint";
-    tick: string;
-    amt: bigint;
-    [key: string]: any;
-  }
-  
+  p: 'n20'
+  op: 'mint'
+  tick: string
+  amt: bigint
+  [key: string]: any
+}

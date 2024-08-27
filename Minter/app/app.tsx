@@ -25,7 +25,10 @@ function App() {
     }
     n20_wallet = new N20Wallet(wallet)
 
-    if (n20_wallet.btc_wallet.network === 'BTCtestnet' || n20_wallet.btc_wallet.network === 'testnet') {
+    if (
+      n20_wallet.btc_wallet.network === 'BTCtestnet' ||
+      n20_wallet.btc_wallet.network === 'testnet'
+    ) {
       tick_name = 'WUKONG#3'
     } else {
       tick_name = 'WUKONG'
@@ -66,9 +69,19 @@ function App() {
     for (let i = 0; i < token_list.length; i++) {
       if (token_list[i].tick === tick_name) {
         const info_box = document.getElementById('info') as HTMLDivElement
-        const confirmed = BigInt(token_list[i].confirmed) / (10n ** BigInt(token_list[i].dec))
-        const unconfirmed = BigInt(token_list[i].unconfirmed) / (10n ** BigInt(token_list[i].dec))
-        info_box.innerHTML = tick_name + ': ' + confirmed + '/' + unconfirmed + ' ' + t('difficulty') + (difficulty + 1n) + '/' + 9n
+        const confirmed = BigInt(token_list[i].confirmed) / 10n ** BigInt(token_list[i].dec)
+        const unconfirmed = BigInt(token_list[i].unconfirmed) / 10n ** BigInt(token_list[i].dec)
+        info_box.innerHTML =
+          tick_name +
+          ': ' +
+          confirmed +
+          '/' +
+          unconfirmed +
+          ' ' +
+          t('difficulty') +
+          (difficulty + 1n) +
+          '/' +
+          9n
         break
       }
     }
@@ -81,10 +94,10 @@ function App() {
     }
 
     const tokenInfo = await n20_wallet.tokenInfo(tick_name)
-    
+
     if (tokenInfo === null) {
-        alert(t('notoken'))
-        return false
+      alert(t('notoken'))
+      return false
     }
 
     const maxSupply = BigInt(tokenInfo.max)
@@ -97,9 +110,18 @@ function App() {
     send_button.disabled = true
     result_box.innerHTML = ''
 
-    while(true) {
+    let retry = 0
+
+    while (retry < 1) {
       try {
-        const res = await n20_wallet.mintWuKong(tick_name, amount, difficulty, notic_box, result_box, t)
+        const res = await n20_wallet.mintWuKong(
+          tick_name,
+          amount,
+          difficulty,
+          notic_box,
+          result_box,
+          t
+        )
 
         if (res.success) {
           notic_box.innerHTML = t('completed')
@@ -107,7 +129,7 @@ function App() {
             '<a href=' +
             interpolate(n20_wallet.config.explorer[0].tx, { txId: res.txId }) +
             ' target="_blank">txId:' +
-          res.txId +
+            res.txId +
             '</a></br>'
 
           getTokenList()
@@ -117,6 +139,7 @@ function App() {
           notic_box.innerHTML = t('diff_change')
           getTokenList()
           await sleep(3000)
+          retry = 1
         } else {
           notic_box.innerHTML = t('failed')
           notic_box.innerHTML += res.error.message
@@ -181,7 +204,10 @@ function App() {
             <form>
               <div className="mb-4 w-full rounded-lg border border-gray-200 bg-gray-50 dark:border-gray-600 dark:bg-gray-700">
                 <div className="rounded-t-lg bg-white px-4 py-2 dark:bg-gray-800">
-                  <div className="h-8 w-full items-center bg-white px-0 pt-2 font-sans text-sm text-gray-900 dark:bg-gray-800 dark:text-white" id='info'>
+                  <div
+                    className="h-8 w-full items-center bg-white px-0 pt-2 font-sans text-sm text-gray-900 dark:bg-gray-800 dark:text-white"
+                    id="info"
+                  >
                     {tick_name}
                   </div>
                 </div>

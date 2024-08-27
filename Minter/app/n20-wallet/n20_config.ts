@@ -111,8 +111,8 @@ export const coins_config: ICoinConfig[] = [
       apiKey: URCHAIN_KEY,
     },
     indexnote: {
-        host: 'https://testnet4.noteprotocol.org/api/trpc/',
-        apiKey: URCHAIN_KEY,
-      },    
+      host: 'https://testnet4.noteprotocol.org/api/trpc/',
+      apiKey: URCHAIN_KEY,
+    },
   },
 ]
