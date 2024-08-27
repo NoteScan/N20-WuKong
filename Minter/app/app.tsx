@@ -112,7 +112,7 @@ function App() {
 
     let retry = 0
 
-    while (retry < 1) {
+    while (retry < 2) {
       try {
         const res = await n20_wallet.mintWuKong(
           tick_name,
