@@ -139,7 +139,7 @@ function App() {
           notic_box.innerHTML = t('diff_change')
           getTokenList()
           await sleep(3000)
-          retry = 1
+          retry += 1
         } else {
           notic_box.innerHTML = t('failed')
           notic_box.innerHTML += res.error.message
