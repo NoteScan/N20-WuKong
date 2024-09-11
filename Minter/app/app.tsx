@@ -135,7 +135,7 @@ function App() {
           getTokenList()
           break
         } else if (res.error.code === 400) {
-          difficulty = BigInt(res.error.message.total) / (maxSupply / 9n)
+          difficulty = BigInt(res.error.details.total) / (maxSupply / 9n)
           notic_box.innerHTML = t('diff_change')
           getTokenList()
           await sleep(3000)

@@ -35,6 +35,7 @@ import {
   MAX_STANDARD_STACK_ITEM_SIZE,
   MIN_SATOSHIS,
   MAX_LOCKTIME,
+  MAX_SEQUENCE,
   coins_config,
 } from './n20_config'
 
@@ -555,15 +556,19 @@ class N20Wallet {
     await sleep(100)
 
     let nonce = 0n
-    while (nonce < MAX_LOCKTIME) {
-      const data = hash256(
-        pre_trans.noteUtxo.txId +
-          num2bin(BigInt(pre_trans.noteUtxo.outputIndex), 4) +
-          num2bin(nonce, 8),
-        'hex'
-      )
-      const workproof = hash256(data, 'hex')
+    const startTime = Date.now()
+    while (nonce < BigInt(MAX_LOCKTIME)) {
+      const ori_data = pre_trans.noteUtxo.txId +
+        num2bin(BigInt(pre_trans.noteUtxo.outputIndex), 4) +
+        num2bin(nonce, 8)
+      const hash_data = hash256(ori_data, 'hex')
+      const workproof = hash256(hash_data, 'hex')
       if (nonce % (5000n * (difficulty + 1n)) === 0n) {
+        const elapsed = Date.now() - startTime
+        if (elapsed > 0) {
+            const hashRate = nonce * 2000n / BigInt(elapsed)
+            log_item.innerHTML = t('minting') + ' ' + hashRate.toString() + ' Hash/s'
+        }
         result_item.innerHTML = workproof
         await sleep(1)
       }
@@ -574,35 +579,40 @@ class N20Wallet {
         (difficulty === 6n && workproof.startsWith('0000000')) ||
         (difficulty === 8n && workproof.startsWith('00000000'))
       ) {
+        result_item.innerHTML = workproof
         break
       } else if (
         difficulty === 1n &&
         workproof.startsWith('0000') &&
         parseInt(workproof.slice(4, 6), 16) < 64
       ) {
+        result_item.innerHTML = workproof
         break
       } else if (
         difficulty === 3n &&
         workproof.startsWith('0000') &&
         parseInt(workproof.slice(4, 6), 16) < 4
       ) {
+        result_item.innerHTML = workproof
         break
       } else if (
         difficulty === 5n &&
         workproof.startsWith('000000') &&
         parseInt(workproof.slice(6, 8), 16) < 64
       ) {
+        result_item.innerHTML = workproof
         break
       } else if (
         difficulty === 7n &&
         workproof.startsWith('000000') &&
         parseInt(workproof.slice(6, 8), 16) < 4
       ) {
+        result_item.innerHTML = workproof
         break
       }
       nonce += 1n
     }
-
+    
     mintData.nonce = nonce
     payload = this.buildN20Payload(mintData)
     log_item.innerHTML = t('sign2')
