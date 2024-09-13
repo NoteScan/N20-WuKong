@@ -14,7 +14,7 @@ export const MAX_SCRIPT_FULL_SIZE = MAX_SCRIPT_ELEMENT_SIZE * MAX_DATA_SEGMENTS
 export const MAX_STACK_FULL_SIZE = MAX_STANDARD_STACK_ITEM_SIZE * MAX_DATA_SEGMENTS
 
 export const MAX_SEQUENCE = 0xffffffff
-export const MAX_LOCKTIME = 0xffffffffffffffff
+export const MAX_LOCKTIME = 0xffffffffffff
 
 export const URCHAIN_KEY = process.env.URCHAIN_KEY
   ? process.env.URCHAIN_KEY.replace(/^"|"$/g, '')
