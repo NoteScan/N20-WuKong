@@ -558,7 +558,8 @@ class N20Wallet {
     let nonce = 0n
     const startTime = Date.now()
     while (nonce < BigInt(MAX_LOCKTIME)) {
-      const ori_data = pre_trans.noteUtxo.txId +
+      const ori_data =
+        pre_trans.noteUtxo.txId +
         num2bin(BigInt(pre_trans.noteUtxo.outputIndex), 4) +
         num2bin(nonce, 8)
       const hash_data = hash256(ori_data, 'hex')
@@ -566,8 +567,8 @@ class N20Wallet {
       if (nonce % (5000n * (difficulty + 1n)) === 0n) {
         const elapsed = Date.now() - startTime
         if (elapsed > 0) {
-            const hashRate = nonce * 2000n / BigInt(elapsed)
-            log_item.innerHTML = t('minting') + ' ' + hashRate.toString() + ' Hash/s'
+          const hashRate = (nonce * 2000n) / BigInt(elapsed)
+          log_item.innerHTML = t('minting') + ' ' + hashRate.toString() + ' Hash/s'
         }
         result_item.innerHTML = workproof
         await sleep(1)
@@ -612,7 +613,7 @@ class N20Wallet {
       }
       nonce += 1n
     }
-    
+
     mintData.nonce = nonce
     payload = this.buildN20Payload(mintData)
     log_item.innerHTML = t('sign2')
