@@ -256,6 +256,7 @@ function App() {
       )}
 
       {/* Main content */}
+      <br></br>
       <div className="container relative z-10 mx-auto px-4 py-8">
         <h1 className="text-shadow-glow mb-8 text-center text-4xl font-bold text-yellow-500">
           {t('site_description')}
