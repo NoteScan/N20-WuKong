@@ -75,7 +75,7 @@ function App() {
       n20_wallet.btc_wallet.network === 'BTCtestnet' ||
       n20_wallet.btc_wallet.network === 'testnet'
     ) {
-      tick_name = 'WUKONG#9'
+      tick_name = 'WUKONG#8'
     } else {
       tick_name = 'WUKONG'
     }
