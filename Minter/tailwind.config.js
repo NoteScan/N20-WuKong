@@ -21,12 +21,15 @@ module.exports = {
         14: '3.5rem',
       },
       fontFamily: {
-        sans: ['var(--font-space-grotesk)', ...fontFamily.sans],
+        sans: ['var(--font-noto-serif-sc)', ...fontFamily.serif],
       },
       colors: {
         primary: colors.pink,
         gray: colors.gray,
       },
+      backgroundImage: {
+        'gradient-radial': 'radial-gradient(var(--tw-gradient-stops))',
+      },      
       typography: ({ theme }) => ({
         DEFAULT: {
           css: {

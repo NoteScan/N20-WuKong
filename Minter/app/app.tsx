@@ -1,14 +1,12 @@
 'use client'
 
 import { WalletConnectReact, useReactWalletStore } from 'n20-connect/dist/react'
-
 import 'n20-connect/dist/style/index.css'
 import { useTheme } from 'next-themes'
-import ReactSelect from 'react-select'
 import { useTranslation } from 'react-i18next'
-
 import N20Wallet from './n20-wallet'
 import { interpolate, sleep } from './n20-wallet/n20_utils'
+import { useState, useEffect } from 'react'
 
 let n20_wallet: N20Wallet | undefined = undefined
 let difficulty = 0n
@@ -18,6 +16,54 @@ function App() {
   const { resolvedTheme } = useTheme()
   const ext_wallet = useReactWalletStore((state) => state)
   const { t } = useTranslation()
+  const [isLoading, setIsLoading] = useState(false)
+  const [particles, setParticles] = useState<
+    Array<{ x: number; y: number; size: number; speed: number }>
+  >([])
+  const [showCelebration, setShowCelebration] = useState(false)
+
+  useEffect(() => {
+    const createParticles = () => {
+      const newParticles = Array.from({ length: 50 }, () => ({
+        x: Math.random() * window.innerWidth,
+        y: Math.random() * window.innerHeight,
+        size: Math.random() * 3 + 1,
+        speed: Math.random() * 2 + 0.5,
+      }))
+      setParticles(newParticles)
+    }
+
+    createParticles()
+    window.addEventListener('resize', createParticles)
+
+    return () => window.removeEventListener('resize', createParticles)
+  }, [])
+
+  useEffect(() => {
+    let animationId: number
+
+    const animateParticles = () => {
+      if (!isLoading) {
+        setParticles((prevParticles) =>
+          prevParticles.map((particle) => ({
+            ...particle,
+            y: (particle.y + particle.speed) % window.innerHeight,
+          }))
+        )
+        animationId = requestAnimationFrame(animateParticles)
+      }
+    }
+
+    animationId = requestAnimationFrame(animateParticles)
+    return () => cancelAnimationFrame(animationId)
+  }, [isLoading])
+
+  useEffect(() => {
+    if (showCelebration) {
+      const timer = setTimeout(() => setShowCelebration(false), 3000) // Celebration lasts for 3 seconds
+      return () => clearTimeout(timer)
+    }
+  }, [showCelebration])
 
   const onConnectSuccess = async (wallet: any) => {
     if (wallet === undefined) {
@@ -29,7 +75,7 @@ function App() {
       n20_wallet.btc_wallet.network === 'BTCtestnet' ||
       n20_wallet.btc_wallet.network === 'testnet'
     ) {
-      tick_name = 'WUKONG#8'
+      tick_name = 'WUKONG#10'
     } else {
       tick_name = 'WUKONG'
     }
@@ -93,10 +139,13 @@ function App() {
       return false
     }
 
+    setIsLoading(true)
+
     const tokenInfo = await n20_wallet.tokenInfo(tick_name)
 
     if (tokenInfo === null) {
       alert(t('notoken'))
+      setIsLoading(false)
       return false
     }
 
@@ -133,13 +182,22 @@ function App() {
             '</a></br>'
 
           getTokenList()
+          setShowCelebration(true) // Trigger celebration effect
           break
         } else if (res.error.code === 400) {
-          difficulty = BigInt(res.error.details.total) / (maxSupply / 9n)
-          notic_box.innerHTML = t('diff_change')
-          getTokenList()
-          await sleep(3000)
-          retry += 1
+          console.log(res.error)
+          if (difficulty !== BigInt(res.error.details.total) / (maxSupply / 9n)) {
+            difficulty = BigInt(res.error.details.total) / (maxSupply / 9n)
+            notic_box.innerHTML = t('diff_change')
+            getTokenList()
+            await sleep(3000)
+            retry += 1
+          } else {
+            notic_box.innerHTML = t('failed')
+            notic_box.innerHTML += res.error.message
+            result_box.innerHTML = ''
+            break
+          }
         } else {
           notic_box.innerHTML = t('failed')
           notic_box.innerHTML += res.error.message
@@ -154,44 +212,77 @@ function App() {
     }
 
     send_button.disabled = false
+    setIsLoading(false)
     return false
   }
 
   return (
-    <>
-      <div className="divide-y divide-gray-200 dark:divide-gray-700">
-        <div className="space-y-2 pb-8 pt-6 md:space-y-5">
-          <p className="text-md leading-7 text-gray-500 dark:text-gray-400">
-            {t('site_description')}
-          </p>
+    <div className="relative min-h-screen overflow-hidden bg-black text-yellow-500">
+      {/* Regular particle effect */}
+      {!isLoading && (
+        <div className="pointer-events-none absolute inset-0">
+          {particles.map((particle, index) => (
+            <div
+              key={index}
+              className="absolute rounded-full bg-yellow-500 opacity-50"
+              style={{
+                left: `${particle.x}px`,
+                top: `${particle.y}px`,
+                width: `${particle.size}px`,
+                height: `${particle.size}px`,
+              }}
+            />
+          ))}
         </div>
-      </div>
+      )}
 
-      <div className="... flex flex-col">
-        <div>
-          <div className="flex flex-row">
-            <div className="basis-3/4">
+      {/* Celebration effect */}
+      {showCelebration && (
+        <div className="pointer-events-none absolute inset-0 z-50">
+          {Array.from({ length: 100 }).map((_, index) => (
+            <div
+              key={index}
+              className="animate-firework absolute rounded-full bg-yellow-500"
+              style={{
+                left: `${Math.random() * 100}%`,
+                top: `${Math.random() * 100}%`,
+                width: `${Math.random() * 10 + 5}px`,
+                height: `${Math.random() * 10 + 5}px`,
+                animationDelay: `${Math.random() * 2}s`,
+              }}
+            />
+          ))}
+        </div>
+      )}
+
+      {/* Main content */}
+      <div className="container relative z-10 mx-auto px-4 py-8">
+        <h1 className="text-shadow-glow mb-8 text-center text-4xl font-bold text-yellow-500">
+          {t('site_description')}
+        </h1>
+
+        <div className="rounded-lg border border-yellow-500 bg-gray-900 bg-opacity-80 p-6 shadow-lg">
+          <div className="mb-6 flex flex-col items-center justify-between md:flex-row">
+            <div className="mb-4 md:mb-0">
               {n20_wallet === undefined && (
-                <div className="font-mono text-sm text-gray-900 dark:text-white dark:placeholder-gray-400">
+                <div className="animate-pulse font-mono text-sm text-yellow-500">
                   {t('connect_wallet')}
                 </div>
               )}
             </div>
-            <div className="basis-1/4">
-              <div className="continer">
-                <WalletConnectReact
-                  config={{
-                    network: 'BTCtestnet',
-                    defaultConnectorId: 'chainbow',
-                  }}
-                  theme={resolvedTheme === 'dark' ? 'dark' : 'light'}
-                  onConnectSuccess={onConnectSuccess}
-                  onConnectError={onConnectError}
-                  onDisconnectSuccess={onDisconnectSuccess}
-                />
-              </div>
+            <div>
+              <WalletConnectReact
+                config={{
+                  network: 'BTCtestnet',
+                  defaultConnectorId: 'chainbow',
+                }}
+                theme="dark"
+                onConnectSuccess={onConnectSuccess}
+                onConnectError={onConnectError}
+                onDisconnectSuccess={onDisconnectSuccess}
+              />
               {n20_wallet !== undefined && (
-                <div className="text-center font-medium text-blue-500 underline">
+                <div className="mt-2 text-center font-medium text-yellow-500 underline transition-colors hover:text-yellow-400">
                   <a onClick={() => onChangeNetwork()} href="/">
                     {n20_wallet.btc_wallet.network}
                   </a>
@@ -199,27 +290,51 @@ function App() {
               )}
             </div>
           </div>
-          <br></br>
-          <div>
-            <form>
-              <div className="mb-4 w-full rounded-lg border border-gray-200 bg-gray-50 dark:border-gray-600 dark:bg-gray-700">
-                <div className="rounded-t-lg bg-white px-4 py-2 dark:bg-gray-800">
-                  <div
-                    className="h-8 w-full items-center bg-white px-0 pt-2 font-sans text-sm text-gray-900 dark:bg-gray-800 dark:text-white"
-                    id="info"
-                  >
-                    {tick_name}
-                  </div>
-                </div>
-                <div className="flex items-center justify-center border-t px-3 py-2 dark:border-gray-600">
-                  <button
-                    id="mint"
-                    type="button"
-                    className="inline-flex items-center rounded-lg bg-blue-700 px-16 py-2.5 text-center font-medium text-white hover:bg-blue-800 focus:ring-4 focus:ring-blue-200 disabled:cursor-not-allowed disabled:bg-gray-800 dark:focus:ring-blue-900"
-                    onClick={() => onMint()}
-                  >
+
+          <form className="space-y-4">
+            <div className="rounded-lg border border-yellow-600 bg-gray-800 p-4">
+              <div className="font-mono text-sm text-yellow-400" id="info">
+                {tick_name}
+              </div>
+            </div>
+            <div className="flex justify-center">
+              <button
+                id="mint"
+                type="button"
+                className={`transform rounded-full bg-yellow-600 px-8 py-3 font-bold text-black transition duration-300 ease-in-out hover:scale-105 hover:bg-yellow-700 focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:ring-opacity-50 disabled:cursor-not-allowed disabled:opacity-50 ${
+                  isLoading ? 'animate-pulse' : ''
+                }`}
+                onClick={() => onMint()}
+                disabled={isLoading}
+              >
+                {isLoading ? (
+                  <span className="flex items-center">
                     <svg
-                      className="-ms-1 me-2 h-4 w-4"
+                      className="-ml-1 mr-3 h-5 w-5 animate-spin text-black"
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                    >
+                      <circle
+                        className="opacity-25"
+                        cx="12"
+                        cy="12"
+                        r="10"
+                        stroke="currentColor"
+                        strokeWidth="4"
+                      ></circle>
+                      <path
+                        className="opacity-75"
+                        fill="currentColor"
+                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                      ></path>
+                    </svg>
+                    {t('minting')}
+                  </span>
+                ) : (
+                  <>
+                    <svg
+                      className="mr-2 inline-block h-5 w-5"
                       aria-hidden="true"
                       focusable="false"
                       data-prefix="fab"
@@ -234,32 +349,28 @@ function App() {
                       ></path>
                     </svg>
                     {t('mint')}
-                  </button>
-                </div>
-              </div>
-            </form>
-          </div>
-          <div className="mb-4 w-full rounded-lg border border-gray-200 bg-gray-50 dark:border-gray-600 dark:bg-gray-700">
-            <div className="rounded-t-lg bg-white px-4 py-2 dark:bg-gray-800">
-              <div
-                className="w-full border-0 bg-white px-0 font-mono text-sm text-gray-900 focus:ring-0 dark:bg-gray-800 dark:text-white dark:placeholder-gray-400"
-                id="notice"
-              >
+                  </>
+                )}
+              </button>
+            </div>
+          </form>
+
+          <div className="mt-6 space-y-4">
+            <div className="rounded-lg border border-yellow-600 bg-gray-800 p-4">
+              <div className="font-mono text-sm text-yellow-400" id="notice">
                 {t('notice')}
               </div>
             </div>
-          </div>
-          <div className="36 mb-4 w-full truncate rounded-lg border border-gray-200 bg-gray-50 dark:border-gray-600 dark:bg-gray-700">
-            <div className="rounded-t-lg bg-white px-4 py-2 dark:bg-gray-800">
+            <div className="rounded-lg border border-yellow-600 bg-gray-800 p-4">
               <div
-                className="text-center font-mono text-sm text-blue-500 underline"
+                className="text-center font-mono text-sm text-yellow-500 underline"
                 id="result"
               ></div>
             </div>
           </div>
         </div>
       </div>
-    </>
+    </div>
   )
 }
 

@@ -1,48 +1,53 @@
 'use client'
 
+import { useState, useEffect } from 'react'
 import siteMetadata from '@/data/siteMetadata'
 import headerNavLinks from '@/data/headerNavLinks'
 import Logo from '@/data/logo.svg'
 import Link from './Link'
 import MobileNav from './MobileNav'
-import ThemeSwitch from './ThemeSwitch'
 import LanguageSelector from './Language'
 
 const Header = () => {
+  const [scrolled, setScrolled] = useState(false)
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setScrolled(window.scrollY > 50)
+    }
+    window.addEventListener('scroll', handleScroll)
+    return () => window.removeEventListener('scroll', handleScroll)
+  }, [])
+
   return (
-    <header className="flex items-center justify-between py-10">
-      <div>
+    <header
+      className={`fixed left-0 right-0 top-0 z-50 transition-all duration-300 ${
+        scrolled ? 'bg-black bg-opacity-80 shadow-lg' : 'bg-transparent'
+      }`}
+    >
+      <div className="container mx-auto flex items-center justify-between px-4 py-4">
         <Link href="/" aria-label={siteMetadata.headerTitle}>
-          <div className="flex items-center justify-between">
-            <div className="mr-3">
-              <Logo />
+          <div className="flex items-center space-x-2">
+            <div className="h-10 w-10">
+              <Logo className="h-full w-full text-yellow-500" />
             </div>
-            {typeof siteMetadata.headerTitle === 'string' ? (
-              <div className="hidden h-6 text-2xl font-semibold sm:block">
-                {siteMetadata.headerTitle}
-              </div>
-            ) : (
-              siteMetadata.headerTitle
-            )}
           </div>
         </Link>
-      </div>
-      <div className="flex items-center space-x-4 leading-5 sm:space-x-6">
-        {headerNavLinks
-          .filter((link) => link.href !== '/')
-          .map((link) => (
-            <Link
-              key={link.title}
-              href={link.href}
-              className="hidden font-medium text-gray-900 hover:text-primary-500 dark:text-gray-100 dark:hover:text-primary-400
-              sm:block"
-            >
-              {link.title}
-            </Link>
-          ))}
-        <ThemeSwitch />
-        <LanguageSelector />
-        <MobileNav />
+        <nav className="flex items-center space-x-4 sm:space-x-6">
+          {headerNavLinks
+            .filter((link) => link.href !== '/')
+            .map((link) => (
+              <Link
+                key={link.title}
+                href={link.href}
+                className="hidden text-sm font-medium text-yellow-500 transition-colors duration-200 hover:text-yellow-400 sm:inline-block"
+              >
+                {link.title}
+              </Link>
+            ))}
+          <LanguageSelector />
+          <MobileNav />
+        </nav>
       </div>
     </header>
   )

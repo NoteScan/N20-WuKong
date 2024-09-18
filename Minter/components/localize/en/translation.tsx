@@ -1,6 +1,6 @@
 export const enTranslation = {
   connect_wallet: 'Please connect your wallet',
-  site_description: 'Mint WUKONG tokens',
+  site_description: 'WUKONG Minter',
   mint: 'Mint',
   language: 'Lang',
   notice: 'Note: Due to the NOTE protocol, the mint operation may requires sign twice',

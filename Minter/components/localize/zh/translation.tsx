@@ -1,5 +1,5 @@
 export const zhTranslation = {
-  connect_wallet: '请点击右侧Connect按钮连接钱包',
+  connect_wallet: '请点击Connect按钮连接钱包',
   site_description: 'WUKONG挖矿',
   mint: '挖矿',
   language: '语言',

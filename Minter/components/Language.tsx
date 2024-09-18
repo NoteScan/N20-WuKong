@@ -1,36 +1,52 @@
 'use client'
 
+import { useState, useRef, useEffect } from 'react'
 import { HiGlobe } from 'react-icons/hi'
 import i18n from './i18n'
-import { useState } from 'react'
-//import { useTranslation } from 'react-i18next'
+import { useTranslation } from 'react-i18next'
 
 function LanguageSelector() {
   const [isOpen, setIsOpen] = useState(false)
-  //  const { t } = useTranslation()
+  const { t } = useTranslation()
+  const dropdownRef = useRef<HTMLDivElement>(null)
 
-  const changeLanguage = (lang) => {
-    if (isOpen && i18n.language !== lang) {
+  const changeLanguage = (lang: string) => {
+    if (i18n.language !== lang) {
       i18n.changeLanguage(lang)
     }
-    isOpen && setIsOpen(false)
+    setIsOpen(false)
   }
 
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setIsOpen(false)
+      }
+    }
+
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside)
+    }
+  }, [])
+
   return (
-    <div>
+    <div className="relative" ref={dropdownRef}>
       <button
         type="button"
-        className="flex items-center space-x-2 text-sm text-gray-700 dark:text-gray-300"
+        className="flex items-center space-x-2 text-sm text-yellow-500 transition-colors duration-200 hover:text-yellow-400"
         onClick={() => setIsOpen(!isOpen)}
+        aria-haspopup="true"
+        aria-expanded={isOpen}
       >
         <HiGlobe className="inline-block h-5 w-5" />
         <span className="ml-2 flex items-center">
-          <span className="mr-1">{i18n.language}</span>
+          <span className="mr-1">{i18n.language === 'en' ? 'EN' : '中文'}</span>
           <svg
             xmlns="http://www.w3.org/2000/svg"
             viewBox="0 0 20 20"
             fill="currentColor"
-            className="inline-block h-4 w-4"
+            className={`inline-block h-4 w-4 transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`}
           >
             <path
               fillRule="evenodd"
@@ -41,18 +57,23 @@ function LanguageSelector() {
         </span>
       </button>
       {isOpen && (
-        <div className="absolute mt-2 w-56 divide-y divide-gray-200 rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 dark:divide-gray-600 dark:bg-gray-800">
-          <div className="py-1" role="menu" aria-labelledby="user-menu">
+        <div className="absolute right-0 mt-2 w-48 rounded-md bg-black bg-opacity-90 shadow-lg ring-1 ring-yellow-500 ring-opacity-50">
+          <div
+            className="py-1"
+            role="menu"
+            aria-orientation="vertical"
+            aria-labelledby="language-menu"
+          >
             <button
               onClick={() => changeLanguage('en')}
-              className="flex items-center px-4 py-2 text-sm text-gray-700 dark:text-gray-300"
+              className="block w-full px-4 py-2 text-left text-sm text-yellow-500 transition-colors duration-200 hover:bg-yellow-500 hover:bg-opacity-20"
               role="menuitem"
             >
               English
             </button>
             <button
               onClick={() => changeLanguage('zh')}
-              className="flex items-center px-4 py-2 text-sm text-gray-700 dark:text-gray-300"
+              className="block w-full px-4 py-2 text-left text-sm text-yellow-500 transition-colors duration-200 hover:bg-yellow-500 hover:bg-opacity-20"
               role="menuitem"
             >
               简体中文

@@ -39,7 +39,7 @@ Access the application in your web browser at http://localhost:3000.
 
 . Create a new project on Vercel.
 
-. Import your forked repository and deploy on Vercel.
+. Import your forked repository and change **Root Directory** to **Minter** in project configure page, then deploy on Vercel.
 
 
 # Licence

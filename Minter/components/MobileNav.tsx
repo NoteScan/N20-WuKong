@@ -10,24 +10,23 @@ const MobileNav = () => {
 
   const onToggleNav = () => {
     setNavShow((status) => {
-      if (status) {
-        document.body.style.overflow = 'auto'
-      } else {
-        // Prevent scrolling
-        document.body.style.overflow = 'hidden'
-      }
+      document.body.style.overflow = status ? 'auto' : 'hidden'
       return !status
     })
   }
 
   return (
     <>
-      <button aria-label="Toggle Menu" onClick={onToggleNav} className="sm:hidden">
+      <button
+        aria-label="Toggle Menu"
+        onClick={onToggleNav}
+        className="text-yellow-500 transition-colors duration-200 hover:text-yellow-400 sm:hidden"
+      >
         <svg
           xmlns="http://www.w3.org/2000/svg"
           viewBox="0 0 20 20"
           fill="currentColor"
-          className="h-8 w-8 text-gray-900 hover:text-primary-500 dark:text-gray-100 dark:hover:text-primary-400"
+          className="h-8 w-8"
         >
           <path
             fillRule="evenodd"
@@ -36,8 +35,8 @@ const MobileNav = () => {
           />
         </svg>
       </button>
-      <Transition appear show={navShow} as={Fragment}>
-        <Dialog as="div" className="relative z-10" onClose={onToggleNav}>
+      <Transition show={navShow} as={Fragment}>
+        <Dialog as="div" className="fixed inset-0 z-50 overflow-hidden" onClose={onToggleNav}>
           <Transition.Child
             as={Fragment}
             enter="ease-out duration-300"
@@ -47,59 +46,49 @@ const MobileNav = () => {
             leaveFrom="opacity-100"
             leaveTo="opacity-0"
           >
-            <div className="fixed inset-0 bg-black/25" />
+            <Dialog.Overlay className="fixed inset-0 bg-black/70" />
           </Transition.Child>
 
-          <div className="fixed inset-0 overflow-y-auto">
-            <div className="flex min-h-full items-center justify-center p-4 text-center">
-              <Transition.Child
-                as={Fragment}
-                enter="transition ease-in-out duration-300 transform"
-                enterFrom="translate-x-full opacity-0"
-                enterTo="translate-x-0 opacity-95"
-                leave="transition ease-in duration-200 transform"
-                leaveFrom="translate-x-0 opacity-95"
-                leaveTo="translate-x-full opacity-0"
-              >
-                <Dialog.Panel className="fixed left-0 top-0 z-10 h-full w-full bg-white opacity-95 duration-300 dark:bg-gray-950 dark:opacity-[0.98]">
-                  <nav className="fixed mt-8 h-full text-left">
-                    {headerNavLinks.map((link) => (
-                      <div key={link.title} className="px-12 py-4">
-                        <Link
-                          href={link.href}
-                          className="text-2xl font-bold tracking-widest text-gray-900 hover:text-primary-500 dark:text-gray-100 dark:hover:text-primary-400"
-                          onClick={onToggleNav}
-                        >
-                          {link.title}
-                        </Link>
-                      </div>
-                    ))}
-                  </nav>
-
-                  <div className="flex justify-end">
-                    <button
-                      className="mr-8 mt-11 h-8 w-8"
-                      aria-label="Toggle Menu"
+          <Transition.Child
+            as={Fragment}
+            enter="transform transition ease-in-out duration-300"
+            enterFrom="translate-x-full"
+            enterTo="translate-x-0"
+            leave="transform transition ease-in-out duration-300"
+            leaveFrom="translate-x-0"
+            leaveTo="translate-x-full"
+          >
+            <div className="fixed inset-y-0 right-0 w-full max-w-sm bg-black bg-opacity-90 p-6 text-yellow-500">
+              <div className="flex justify-end">
+                <button
+                  className="rounded-md text-yellow-500 hover:text-yellow-400 focus:outline-none focus:ring-2 focus:ring-yellow-500"
+                  onClick={onToggleNav}
+                >
+                  <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M6 18L18 6M6 6l12 12"
+                    />
+                  </svg>
+                </button>
+              </div>
+              <nav className="mt-8">
+                {headerNavLinks.map((link) => (
+                  <div key={link.title} className="py-4">
+                    <Link
+                      href={link.href}
+                      className="text-2xl font-bold tracking-widest text-yellow-500 transition-colors duration-200 hover:text-yellow-400"
                       onClick={onToggleNav}
                     >
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        viewBox="0 0 20 20"
-                        fill="currentColor"
-                        className="text-gray-900 hover:text-primary-500 dark:text-gray-100 dark:hover:text-primary-400"
-                      >
-                        <path
-                          fillRule="evenodd"
-                          d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
-                          clipRule="evenodd"
-                        />
-                      </svg>
-                    </button>
+                      {link.title}
+                    </Link>
                   </div>
-                </Dialog.Panel>
-              </Transition.Child>
+                ))}
+              </nav>
             </div>
-          </div>
+          </Transition.Child>
         </Dialog>
       </Transition>
     </>
