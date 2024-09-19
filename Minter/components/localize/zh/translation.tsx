@@ -15,6 +15,7 @@ export const zhTranslation = {
   minting: '挖矿中...',
   diff_change: '难度变化，重试中...',
   difficulty: '难度：',
+  finished: '已达到最大供应量, 挖矿结束',
 }
 
 export default zhTranslation

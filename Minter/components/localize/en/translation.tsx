@@ -15,6 +15,7 @@ export const enTranslation = {
   minting: 'Minting...',
   diff_change: 'Difficulty changed, retrying...',
   difficulty: 'Difficulty: ',
+  finished: 'Max supply reached, minting finished',
 }
 
 export default enTranslation

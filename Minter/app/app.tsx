@@ -6,7 +6,7 @@ import { useTheme } from 'next-themes'
 import { useTranslation } from 'react-i18next'
 import N20Wallet from './n20-wallet'
 import { interpolate, sleep } from './n20-wallet/n20_utils'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 
 let n20_wallet: N20Wallet | undefined = undefined
 let difficulty = 0n
@@ -21,6 +21,7 @@ function App() {
     Array<{ x: number; y: number; size: number; speed: number }>
   >([])
   const [showCelebration, setShowCelebration] = useState(false)
+  const videoRef = useRef<HTMLVideoElement>(null)
 
   useEffect(() => {
     const createParticles = () => {
@@ -60,6 +61,10 @@ function App() {
 
   useEffect(() => {
     if (showCelebration) {
+      if (videoRef.current) {
+        videoRef.current.currentTime = 0
+        videoRef.current.play()
+      }
       const timer = setTimeout(() => setShowCelebration(false), 3000) // Celebration lasts for 3 seconds
       return () => clearTimeout(timer)
     }
@@ -174,19 +179,28 @@ function App() {
 
         if (res.success) {
           notic_box.innerHTML = t('completed')
+
+          // Shorten the transaction ID
+          const shortTxId = `${res.txId.slice(0, 6)}...${res.txId.slice(-6)}`
+
           result_box.innerHTML =
-            '<a href=' +
-            interpolate(n20_wallet.config.explorer[0].tx, { txId: res.txId }) +
-            ' target="_blank">txId:' +
-            res.txId +
-            '</a></br>'
+            `<a href="${interpolate(n20_wallet.config.explorer[0].tx, { txId: res.txId })}" ` +
+            `target="_blank" class="break-all">` +
+            `txId: ${shortTxId}` +
+            `</a>`
 
           getTokenList()
           setShowCelebration(true) // Trigger celebration effect
           break
         } else if (res.error.code === 400) {
-          console.log(res.error)
-          if (difficulty !== BigInt(res.error.details.total) / (maxSupply / 9n)) {
+          if ('details' in res.error && BigInt(res.error.details.total) === maxSupply) {
+            notic_box.innerHTML = t('finished')
+            result_box.innerHTML = ''
+            break
+          } else if (
+            'details' in res.error &&
+            difficulty !== BigInt(res.error.details.total) / (maxSupply / 9n)
+          ) {
             difficulty = BigInt(res.error.details.total) / (maxSupply / 9n)
             notic_box.innerHTML = t('diff_change')
             getTokenList()
@@ -230,25 +244,6 @@ function App() {
                 top: `${particle.y}px`,
                 width: `${particle.size}px`,
                 height: `${particle.size}px`,
-              }}
-            />
-          ))}
-        </div>
-      )}
-
-      {/* Celebration effect */}
-      {showCelebration && (
-        <div className="pointer-events-none absolute inset-0 z-50">
-          {Array.from({ length: 100 }).map((_, index) => (
-            <div
-              key={index}
-              className="animate-firework absolute rounded-full bg-yellow-500"
-              style={{
-                left: `${Math.random() * 100}%`,
-                top: `${Math.random() * 100}%`,
-                width: `${Math.random() * 10 + 5}px`,
-                height: `${Math.random() * 10 + 5}px`,
-                animationDelay: `${Math.random() * 2}s`,
               }}
             />
           ))}
@@ -362,15 +357,25 @@ function App() {
                 {t('notice')}
               </div>
             </div>
-            <div className="rounded-lg border border-yellow-600 bg-gray-800 p-4">
+            <div className="overflow-hidden rounded-lg border border-yellow-600 bg-gray-800 p-4">
               <div
-                className="text-center font-mono text-sm text-yellow-500 underline"
+                className="break-all text-center font-mono text-sm text-yellow-500 underline"
                 id="result"
               ></div>
             </div>
           </div>
         </div>
       </div>
+      {/* Celebration video */}
+      <video
+        ref={videoRef}
+        className={`absolute inset-0 h-full w-full object-cover ${
+          showCelebration ? 'opacity-100' : 'opacity-15'
+        } transition-opacity duration-300`}
+        src="/static/images/jg.mp4"
+        muted
+        playsInline
+      />
     </div>
   )
 }

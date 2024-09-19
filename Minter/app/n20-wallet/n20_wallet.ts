@@ -564,51 +564,52 @@ class N20Wallet {
         num2bin(nonce, 8)
       const hash_data = hash256(ori_data, 'hex')
       const workproof = hash256(hash_data, 'hex')
+      const short_proof = workproof.slice(0, 10) + '...' + workproof.slice(-5)
       if (nonce % (5000n * (difficulty + 1n)) === 0n) {
         const elapsed = Date.now() - startTime
         if (elapsed > 0) {
           const hashRate = (nonce * 2000n) / BigInt(elapsed)
           log_item.innerHTML = t('minting') + ' ' + hashRate.toString() + ' Hash/s'
         }
-        result_item.innerHTML = workproof
+        result_item.innerHTML = short_proof
         await sleep(1)
       }
       if (
-        (difficulty === 0n && workproof.startsWith('0000')) ||
-        (difficulty === 2n && workproof.startsWith('00000')) ||
-        (difficulty === 4n && workproof.startsWith('000000')) ||
-        (difficulty === 6n && workproof.startsWith('0000000')) ||
-        (difficulty === 8n && workproof.startsWith('00000000'))
+        (difficulty === 0n && short_proof.startsWith('0000')) ||
+        (difficulty === 2n && short_proof.startsWith('00000')) ||
+        (difficulty === 4n && short_proof.startsWith('000000')) ||
+        (difficulty === 6n && short_proof.startsWith('0000000')) ||
+        (difficulty === 8n && short_proof.startsWith('00000000'))
       ) {
-        result_item.innerHTML = workproof
+        result_item.innerHTML = short_proof
         break
       } else if (
         difficulty === 1n &&
-        workproof.startsWith('0000') &&
-        parseInt(workproof.slice(4, 6), 16) < 64
+        short_proof.startsWith('0000') &&
+        parseInt(short_proof.slice(4, 6), 16) < 64
       ) {
-        result_item.innerHTML = workproof
+        result_item.innerHTML = short_proof
         break
       } else if (
         difficulty === 3n &&
-        workproof.startsWith('0000') &&
-        parseInt(workproof.slice(4, 6), 16) < 4
+        short_proof.startsWith('0000') &&
+        parseInt(short_proof.slice(4, 6), 16) < 4
       ) {
-        result_item.innerHTML = workproof
+        result_item.innerHTML = short_proof
         break
       } else if (
         difficulty === 5n &&
-        workproof.startsWith('000000') &&
-        parseInt(workproof.slice(6, 8), 16) < 64
+        short_proof.startsWith('000000') &&
+        parseInt(short_proof.slice(6, 8), 16) < 64
       ) {
-        result_item.innerHTML = workproof
+        result_item.innerHTML = short_proof
         break
       } else if (
         difficulty === 7n &&
-        workproof.startsWith('000000') &&
-        parseInt(workproof.slice(6, 8), 16) < 4
+        short_proof.startsWith('000000') &&
+        parseInt(short_proof.slice(6, 8), 16) < 4
       ) {
-        result_item.innerHTML = workproof
+        result_item.innerHTML = short_proof
         break
       }
       nonce += 1n
