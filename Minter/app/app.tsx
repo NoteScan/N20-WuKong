@@ -63,7 +63,7 @@ function App() {
 
   useEffect(() => {
     if (showCelebration) {
-      const timer = setTimeout(() => setShowCelebration(false), 3000) // Celebration lasts for 3 seconds
+      const timer = setTimeout(() => setShowCelebration(false), 2000) // Celebration lasts for 2 seconds
       return () => clearTimeout(timer)
     }
     if (criticalHit) {
@@ -71,7 +71,10 @@ function App() {
         videoRef.current.currentTime = 0
         videoRef.current.play()
       }
-      const timer = setTimeout(() => setCriticalHit(false), 3000) // Celebration lasts for 3 seconds
+      const timer = setTimeout(() => {
+        setCriticalHit(false)
+        setIsLoading(false)
+      }, 3000) // Celebration lasts for 3 seconds
       return () => clearTimeout(timer)
     }
   }, [showCelebration, criticalHit])
@@ -180,7 +183,7 @@ function App() {
         if (res.tx.success) {
           if (res.critical_hit) {
             notic_box.innerHTML = t('critical')
-            setCriticalHit(true)
+            setCriticalHit(true) // Trigger critical hit effect
           } else {
             notic_box.innerHTML = t('completed')
             setShowCelebration(true) // Trigger celebration effect
@@ -241,7 +244,9 @@ function App() {
     }
 
     send_button.disabled = false
-    setIsLoading(false)
+    if (!criticalHit) {
+      setIsLoading(false)
+    }
     return false
   }
 
@@ -406,7 +411,7 @@ function App() {
       <video
         ref={videoRef}
         className={`absolute inset-0 h-full w-full object-cover ${
-          criticalHit ? 'opacity-66' : 'opacity-10'
+          criticalHit ? 'opacity-58' : 'opacity-10'
         } transition-opacity duration-300`}
         src="/static/images/jg.mp4"
         muted
