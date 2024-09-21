@@ -10,6 +10,8 @@ export type Input = {
 export class N20_WuKong extends SmartContract {
     static readonly INPUT_NUM = 1
     static readonly MAX_DIFFICULTY = 9n
+    static readonly HEAVENLY_PEACH_CHANCE = 10n // 1 in 10 chance
+    static readonly LIMIT_FIX = 900000000000n
 
     @prop()
     readonly tick: ByteString
@@ -29,6 +31,10 @@ export class N20_WuKong extends SmartContract {
         this.max = max
         this.lim = lim
         this.dec = dec
+        this.lim = lim
+        this.dec = dec
+        assert(lim == 0n)
+        assert(dec == 8n)
     }
 
     @method()
@@ -62,23 +68,29 @@ export class N20_WuKong extends SmartContract {
             assert(slice(workproof, 0n, 4n) == toByteString('00000000'), 'not match target')
         }
 
-        if (difficulty == 1n) {
+        if (difficulty === 1n) {
             assert(byteString2Int(slice(workproof, 2n, 3n) + toByteString('00')) < 64, 'not match target')
-        } else if (difficulty == 2n) {
+        } else if (difficulty === 2n) {
             assert(byteString2Int(slice(workproof, 2n, 3n) + toByteString('00')) < 16, 'not match target')
-        } else if (difficulty == 3n) {
+        } else if (difficulty === 3n) {
             assert(byteString2Int(slice(workproof, 2n, 3n) + toByteString('00')) < 4, 'not match target')
-        } else if (difficulty == 5n) {
+        } else if (difficulty === 5n) {
             assert(byteString2Int(slice(workproof, 3n, 4n) + toByteString('00')) < 64, 'not match target')
-        } else if (difficulty == 6n) {
+        } else if (difficulty === 6n) {
             assert(byteString2Int(slice(workproof, 3n, 4n) + toByteString('00')) < 16, 'not match target')
-        } else if (difficulty == 7n) {
+        } else if (difficulty === 7n) {
             assert(byteString2Int(slice(workproof, 3n, 4n) + toByteString('00')) < 4, 'not match target')
         } 
 
+        let limit = N20_WuKong.LIMIT_FIX
+        // critical hit
+        if (byteString2Int(slice(workproof, 5n, 6n) + toByteString('00')) % N20_WuKong.HEAVENLY_PEACH_CHANCE === 0n) {
+            limit += N20_WuKong.LIMIT_FIX
+        }
+
         assert(this.max == 0n || total <= this.max, 'Over max')
         assert(tick == this.tick, 'Tick does not match')
-        assert(amt <= this.lim && amt <= this.max - total, 'Amount check failed')
+        assert(amt <= limit && amt <= this.max - total, 'Amount check failed')
     }
 
     @method()

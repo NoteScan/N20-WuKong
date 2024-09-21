@@ -15,8 +15,8 @@ const deployData = {
     p: 'n20',
     op: 'deploy',
     tick,
-    max: 81n * 10000n * 10000n * 10n ** 8n,
-    lim: 10000n * 10n ** 8n,
+    max: 81n * 1000000n * 10000n * 10n ** 8n,
+    lim: 0n,
     dec: 8,
     sch: '50b13619d4d936d7c5c7fb7dfbe752e33b85b33774e9e2b3779f16791fb1c749',
 }
@@ -25,7 +25,7 @@ const mintData = {
     p: 'n20',
     op: 'mint',
     tick,
-    amt: 10000n * 10n ** 8n,
+    amt: 9000n * 10n ** 8n,
     nonce: 0n,
 }
 
@@ -48,7 +48,7 @@ describe('Test SmartContract `N20_WuKong`', () => {
                 tick: stringToBytes(deployData.tick),
                 max: deployData.max,
                 lim: deployData.lim,
-                dec: deployData.dec,
+                dec: deployData.dec,                
                 sch: deployData.sch,
             },
             mint: {
@@ -74,7 +74,7 @@ describe('Test SmartContract `N20_WuKong`', () => {
     it('should pass the public method unit test successfully.', async () => {
         await N20_WuKong.loadArtifact()
 
-        instance = new N20_WuKong(toByteString(tick, true), deployData.max, deployData.lim, BigInt(deployData.dec))
+        instance = new N20_WuKong(toByteString(tick, true), deployData.max, 0n, 8n)
 
         await instance.connect(getDefaultSigner())
 
@@ -82,7 +82,7 @@ describe('Test SmartContract `N20_WuKong`', () => {
 
         const call = async () => {
             {
-                const callRes = await instance.methods.mint(toByteString(tick, true), mintData.amt, 180000000000000001n, 274374n, [inputData])
+                const callRes = await instance.methods.mint(toByteString(tick, true), mintData.amt * 2n, 180000000000000001n, 2628487n, [inputData])
             }
         }
         await expect(call()).not.to.be.rejected
