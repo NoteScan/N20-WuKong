@@ -9,6 +9,7 @@ export const zhTranslation = {
   confirmed: '已确认',
   unconfirmed: '未确认',
   completed: '挖矿成功',
+  critical: '挖矿成功，暴击！',
   failed: '挖矿失败: ',
   total: '总计',
   notoken: '代币不存在',

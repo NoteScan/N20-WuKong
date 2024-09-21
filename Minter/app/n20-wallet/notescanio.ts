@@ -18,13 +18,6 @@ export class NoteOrg {
   _parseError(error: AxiosError) {
     if (error.response) {
       // server return error
-      console.log(
-        '🚀 ~ file: notescanio.ts:143 ~ NoteOrg ~ _parseError',
-        `${error.config?.baseURL}${error.config?.url}`,
-        error.response.status,
-        error.response.headers,
-        error.response.data
-      )
       throw new Error(JSON.stringify(error.response.data))
     } else if (error.request) {
       // console.warn( error.message )

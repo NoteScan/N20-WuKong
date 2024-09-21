@@ -2,17 +2,21 @@
 
 import { useState, useRef, useEffect } from 'react'
 import { HiGlobe } from 'react-icons/hi'
-import i18n from './i18n'
 import { useTranslation } from 'react-i18next'
+import { useCookies } from 'react-cookie'
 
 function LanguageSelector() {
   const [isOpen, setIsOpen] = useState(false)
-  const { t } = useTranslation()
+  const { t, i18n } = useTranslation()
   const dropdownRef = useRef<HTMLDivElement>(null)
+  const [cookies, setCookie] = useCookies(['language'])
+  const [language, setLanguage] = useState(i18n.language)
 
   const changeLanguage = (lang: string) => {
     if (i18n.language !== lang) {
       i18n.changeLanguage(lang)
+      setCookie('language', lang, { path: '/' })
+      setLanguage(lang) // Update local state to force re-render
     }
     setIsOpen(false)
   }
@@ -29,6 +33,14 @@ function LanguageSelector() {
       document.removeEventListener('mousedown', handleClickOutside)
     }
   }, [])
+
+  useEffect(() => {
+    const storedLanguage = cookies.language || 'en'
+    if (i18n.language !== storedLanguage) {
+      i18n.changeLanguage(storedLanguage)
+      setLanguage(storedLanguage) // Update local state to force re-render
+    }
+  }, [cookies.language, i18n])
 
   return (
     <div className="relative" ref={dropdownRef}>

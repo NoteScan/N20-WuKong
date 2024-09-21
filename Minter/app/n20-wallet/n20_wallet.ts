@@ -557,6 +557,7 @@ class N20Wallet {
 
     let nonce = 0n
     const startTime = Date.now()
+    let short_proof = ''
     while (nonce < BigInt(MAX_LOCKTIME)) {
       const ori_data =
         pre_trans.noteUtxo.txId +
@@ -564,7 +565,7 @@ class N20Wallet {
         num2bin(nonce, 8)
       const hash_data = hash256(ori_data, 'hex')
       const workproof = hash256(hash_data, 'hex')
-      const short_proof = workproof.slice(0, 10) + '...' + workproof.slice(-5)
+      short_proof = workproof.slice(0, 12) + '...' + workproof.slice(-8)
       if (nonce % (5000n * (difficulty + 1n)) === 0n) {
         const elapsed = Date.now() - startTime
         if (elapsed > 0) {
@@ -616,6 +617,10 @@ class N20Wallet {
     }
 
     mintData.nonce = nonce
+    // critical hit
+    if (parseInt(short_proof.slice(10, 12), 16) % 10 === 0) {
+      mintData.amt += mintData.amt
+    }
     payload = this.buildN20Payload(mintData)
     log_item.innerHTML = t('sign2')
     const tx = await this.buildN20PayloadTransaction(
@@ -627,11 +632,11 @@ class N20Wallet {
     )
 
     try {
-      result = await this.broadcastTransaction(tx)
-      return result
+      const tx_result = await this.broadcastTransaction(tx)
+      return { tx: tx_result, critical_hit: mintData.amt > amount }
     } catch (error) {
-      result = await this.broadcastTransaction(tx)
-      return result
+      const tx_result = await this.broadcastTransaction(tx)
+      return { tx: tx_result, critical_hit: mintData.amt > amount }
     }
   }
 

@@ -66,6 +66,15 @@ module.exports = {
             },
           },
         },
+        keyframes: {
+            firework: {
+              '0%': { transform: 'translate(0, 0)', opacity: 1 },
+              '100%': { transform: 'translate(var(--tw-translate-x), var(--tw-translate-y))', opacity: 0 },
+            },
+        },
+        animation: {
+            firework: 'firework 2s ease-out forwards',
+        },        
       }),
     },
   },

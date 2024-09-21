@@ -19,13 +19,6 @@ export class Indexnote {
   _parseError(error: AxiosError) {
     if (error.response) {
       // server return error
-      console.log(
-        '🚀 ~ file: indexnote.ts:32 ~ Indexnote ~ _parseError',
-        `${error.config?.baseURL}${error.config?.url}`,
-        error.response.status,
-        error.response.headers,
-        error.response.data
-      )
       throw new Error(JSON.stringify(error.response.data))
     } else if (error.request) {
       // console.warn( error.message )

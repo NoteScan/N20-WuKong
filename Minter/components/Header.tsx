@@ -6,6 +6,8 @@ import headerNavLinks from '@/data/headerNavLinks'
 import Logo from '@/data/logo.svg'
 import Link from './Link'
 import MobileNav from './MobileNav'
+import { I18nextProvider } from 'react-i18next'
+import i18next from './i18n'
 import LanguageSelector from './Language'
 
 const Header = () => {
@@ -45,7 +47,9 @@ const Header = () => {
                 {link.title}
               </Link>
             ))}
-          <LanguageSelector />
+          <I18nextProvider i18n={i18next}>
+            <LanguageSelector />
+          </I18nextProvider>
           <MobileNav />
         </nav>
       </div>

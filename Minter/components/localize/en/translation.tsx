@@ -9,6 +9,7 @@ export const enTranslation = {
   confirmed: 'Confirmed',
   unconfirmed: 'Unconfirmed',
   completed: 'Minted Successfully.',
+  critical: 'Minted Successfully, Critical Hit!',
   failed: 'Mint failed: ',
   total: 'Total',
   notoken: 'Token not found',

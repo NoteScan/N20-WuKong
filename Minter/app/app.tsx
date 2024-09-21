@@ -21,7 +21,9 @@ function App() {
     Array<{ x: number; y: number; size: number; speed: number }>
   >([])
   const [showCelebration, setShowCelebration] = useState(false)
+  const [criticalHit, setCriticalHit] = useState(false)
   const videoRef = useRef<HTMLVideoElement>(null)
+  const critical_hit = false
 
   useEffect(() => {
     const createParticles = () => {
@@ -61,14 +63,18 @@ function App() {
 
   useEffect(() => {
     if (showCelebration) {
+      const timer = setTimeout(() => setShowCelebration(false), 3000) // Celebration lasts for 3 seconds
+      return () => clearTimeout(timer)
+    }
+    if (criticalHit) {
       if (videoRef.current) {
         videoRef.current.currentTime = 0
         videoRef.current.play()
       }
-      const timer = setTimeout(() => setShowCelebration(false), 3000) // Celebration lasts for 3 seconds
+      const timer = setTimeout(() => setCriticalHit(false), 3000) // Celebration lasts for 3 seconds
       return () => clearTimeout(timer)
     }
-  }, [showCelebration])
+  }, [showCelebration, criticalHit])
 
   const onConnectSuccess = async (wallet: any) => {
     if (wallet === undefined) {
@@ -80,7 +86,7 @@ function App() {
       n20_wallet.btc_wallet.network === 'BTCtestnet' ||
       n20_wallet.btc_wallet.network === 'testnet'
     ) {
-      tick_name = 'WUKONG#8'
+      tick_name = 'WUKONG#6'
     } else {
       tick_name = 'WUKONG'
     }
@@ -117,25 +123,19 @@ function App() {
 
   const getTokenList = async () => {
     const token_list = await n20_wallet!.tokenList()
+    const info_box = document.getElementById('info') as HTMLDivElement
+
+    info_box.innerHTML = tick_name
+
     for (let i = 0; i < token_list.length; i++) {
       if (token_list[i].tick === tick_name) {
-        const info_box = document.getElementById('info') as HTMLDivElement
         const confirmed = BigInt(token_list[i].confirmed) / 10n ** BigInt(token_list[i].dec)
         const unconfirmed = BigInt(token_list[i].unconfirmed) / 10n ** BigInt(token_list[i].dec)
-        info_box.innerHTML =
-          tick_name +
-          ': ' +
-          confirmed +
-          '/' +
-          unconfirmed +
-          ' ' +
-          t('difficulty') +
-          (difficulty + 1n) +
-          '/' +
-          9n
+        info_box.innerHTML += ': ' + confirmed + '/' + unconfirmed
         break
       }
     }
+    info_box.innerHTML += ' ' + t('difficulty') + (difficulty + 1n) + '/' + 9n
   }
 
   const onMint = async () => {
@@ -155,7 +155,7 @@ function App() {
     }
 
     const maxSupply = BigInt(tokenInfo.max)
-    const amount = BigInt(tokenInfo.lim)
+    const amount = 900000000000n
 
     const send_button = document.getElementById('mint') as HTMLButtonElement
     const result_box = document.getElementById('result') as HTMLDivElement
@@ -177,44 +177,59 @@ function App() {
           t
         )
 
-        if (res.success) {
-          notic_box.innerHTML = t('completed')
+        if (res.tx.success) {
+          if (res.critical_hit) {
+            notic_box.innerHTML = t('critical')
+            setCriticalHit(true)
+          } else {
+            notic_box.innerHTML = t('completed')
+            setShowCelebration(true) // Trigger celebration effect
+          }
 
           // Shorten the transaction ID
-          const shortTxId = `${res.txId.slice(0, 6)}...${res.txId.slice(-6)}`
+          const shortTxId = `${res.tx.txId?.slice(0, 12)}...${res.tx.txId?.slice(-8)}`
 
           result_box.innerHTML =
-            `<a href="${interpolate(n20_wallet.config.explorer[0].tx, { txId: res.txId })}" ` +
+            `<a href="${interpolate(n20_wallet.config.explorer[0].tx, { txId: res.tx.txId })}" ` +
             `target="_blank" class="break-all">` +
             `txId: ${shortTxId}` +
             `</a>`
 
           getTokenList()
-          setShowCelebration(true) // Trigger celebration effect
           break
-        } else if (res.error.code === 400) {
-          if ('details' in res.error && BigInt(res.error.details.total) === maxSupply) {
+        } else if (
+          Object.prototype.hasOwnProperty.call(res.tx.error, 'code') &&
+          res.tx.error.code === 400
+        ) {
+          if (
+            Object.prototype.hasOwnProperty.call(res.tx.error, 'details') &&
+            BigInt(res.tx.error.details.total) === maxSupply
+          ) {
             notic_box.innerHTML = t('finished')
             result_box.innerHTML = ''
             break
           } else if (
-            'details' in res.error &&
-            difficulty !== BigInt(res.error.details.total) / (maxSupply / 9n)
+            Object.prototype.hasOwnProperty.call(res.tx.error, 'details') &&
+            difficulty !== BigInt(res.tx.error.details.total) / (maxSupply / 9n)
           ) {
-            difficulty = BigInt(res.error.details.total) / (maxSupply / 9n)
+            difficulty = BigInt(res.tx.error.details.total) / (maxSupply / 9n)
             notic_box.innerHTML = t('diff_change')
             getTokenList()
             await sleep(3000)
             retry += 1
           } else {
             notic_box.innerHTML = t('failed')
-            notic_box.innerHTML += res.error.message
+            notic_box.innerHTML += res.tx.error.message
             result_box.innerHTML = ''
             break
           }
         } else {
           notic_box.innerHTML = t('failed')
-          notic_box.innerHTML += res.error.message
+          if (Object.prototype.hasOwnProperty.call(res.tx.error, 'message')) {
+            notic_box.innerHTML += res.tx.error.message
+          } else {
+            notic_box.innerHTML += res.tx.error
+          }
           result_box.innerHTML = ''
           break
         }
@@ -244,6 +259,25 @@ function App() {
                 top: `${particle.y}px`,
                 width: `${particle.size}px`,
                 height: `${particle.size}px`,
+              }}
+            />
+          ))}
+        </div>
+      )}
+
+      {/* Celebration effect */}
+      {showCelebration && (
+        <div className="pointer-events-none absolute inset-0 z-50">
+          {Array.from({ length: 50 }).map((_, index) => (
+            <div
+              key={index}
+              className="animate-firework absolute rounded-full bg-yellow-500"
+              style={{
+                left: `${Math.random() * 100}%`,
+                top: `${Math.random() * 100}%`,
+                width: `${Math.random() * 5 + 2}px`,
+                height: `${Math.random() * 5 + 2}px`,
+                animationDelay: `${Math.random() * 2}s`,
               }}
             />
           ))}
@@ -370,7 +404,7 @@ function App() {
       <video
         ref={videoRef}
         className={`absolute inset-0 h-full w-full object-cover ${
-          showCelebration ? 'opacity-100' : 'opacity-15'
+          criticalHit ? 'opacity-66' : 'opacity-10'
         } transition-opacity duration-300`}
         src="/static/images/jg.mp4"
         muted
