@@ -162,7 +162,7 @@ function App() {
     const notic_box = document.getElementById('notice') as HTMLDivElement
 
     send_button.disabled = true
-    result_box.innerHTML = ''
+    result_box.innerHTML = t('test')
 
     let retry = 0
 
@@ -206,7 +206,7 @@ function App() {
             BigInt(res.tx.error.details.total) === maxSupply
           ) {
             notic_box.innerHTML = t('finished')
-            result_box.innerHTML = ''
+            result_box.innerHTML = t('test')
             break
           } else if (
             Object.prototype.hasOwnProperty.call(res.tx.error, 'details') &&
@@ -220,7 +220,7 @@ function App() {
           } else {
             notic_box.innerHTML = t('failed')
             notic_box.innerHTML += res.tx.error.message
-            result_box.innerHTML = ''
+            result_box.innerHTML = t('test')
             break
           }
         } else {
@@ -230,12 +230,12 @@ function App() {
           } else {
             notic_box.innerHTML += res.tx.error
           }
-          result_box.innerHTML = ''
+          result_box.innerHTML = t('test')
           break
         }
       } catch (error) {
         notic_box.innerHTML = error.message
-        result_box.innerHTML = ''
+        result_box.innerHTML = t('test')
         break
       }
     }
@@ -395,7 +395,9 @@ function App() {
               <div
                 className="break-all text-center font-mono text-sm text-yellow-500 underline"
                 id="result"
-              ></div>
+              >
+                {t('test')}
+              </div>
             </div>
           </div>
         </div>

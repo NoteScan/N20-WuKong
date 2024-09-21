@@ -4,7 +4,7 @@ A NOTE Protocol Smart Contract Demo.
 Includes [Smart Contract](./SmartContract/) and [Minter DAPP](./Minter/)
 
 ## Testnet Token for Testing
-[WUKONG#6](https://testnet4.noteprotocol.org/n20/WUKONG%238/Overview)
+[WUKONG#6](https://testnet4.noteprotocol.org/n20/WUKONG%236/Overview)
 - Total supply: 81,000,000
 - Amount per mint: 9,000
 - Difficulty increases every 9,000,000 tokens minted, with a maximum of 9 levels. Difficulty quadruples with each level.

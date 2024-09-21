@@ -17,6 +17,7 @@ export const enTranslation = {
   diff_change: 'Difficulty changed, retrying...',
   difficulty: 'Difficulty: ',
   finished: 'Max supply reached, minting finished',
+  test: 'Only a demo on test network. Tokens have no value.',
 }
 
 export default enTranslation

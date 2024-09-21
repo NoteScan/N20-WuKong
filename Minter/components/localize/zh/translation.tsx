@@ -17,6 +17,7 @@ export const zhTranslation = {
   diff_change: '难度变化，重试中...',
   difficulty: '难度：',
   finished: '已达到最大供应量, 挖矿结束',
+  test: '仅为测试网络演示，代币无价值。',
 }
 
 export default zhTranslation
