@@ -1,3 +1,8 @@
+<div align="center">
+<h2>English  <a href="README_ZH.md">中文</a></h2>
+</div>
+
+
 # N20-WuKong
 
 A NOTE Protocol Smart Contract Demo.

@@ -1,11 +1,18 @@
-# N20-WuKong Minter
+<div align="center">
+<h2>English  <a href="README_ZH.md">中文</a></h2>
+</div>
 
-A DAPP for minting tokens based on the N20-WuKong smart contract.
+# N20-WuKong Mining
+
+N20-WuKong Smart Contract Mining Demo DAPP.
 
 This application supports connections to the NOTE BTC network via ChainBow Wallet, Unisat Wallet, and NOTEMarket Wallet (using <a href='https://github.com/NoteScan/n20-connect'>n20-connect</a>).
 
 ## Demo on Vercel
 https://n20-wukong-demo.vercel.app/
+or
+https://wukong.notescan.io
+
 
 ## Installation
 
